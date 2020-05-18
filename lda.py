@@ -1,4 +1,4 @@
-from pyspark.ml.clustering import LDA, OnlineLDAOptimizer
+from pyspark.ml.clustering import LDA
 from pyspark.ml.feature import Tokenizer, StopWordsRemover, CountVectorizer
 from pyspark.sql import SparkSession
 from pyspark.sql.context import SQLContext
@@ -11,7 +11,7 @@ if __name__ == "__main__":
 
     sc = spark.sparkContext
     sqlContext = SQLContext(sc)
-
+    
     jokesDF = spark.read.schema(StructType([ StructField("jokeID", IntegerType(), False), StructField("text", StringType(),False)])).csv('s3://aws-emr-resources-257018485161-us-east-1/jokes_3.csv', header='true')
 
     tokenizer = Tokenizer(inputCol="text", outputCol ="tokens")
@@ -21,14 +21,13 @@ if __name__ == "__main__":
     remover = StopWordsRemover(stopWords=stopwords, inputCol="tokens", outputCol="filtered")
     filteredDF = remover.transform(tokenizedDF)
 
-    vectorizer = CountVectorizer(inputCol="filtered", outputCol="features", vocabSize=10000, minDF=5).fit(filteredDF)
+    vectorizer = CountVectorizer(inputCol="filtered", outputCol="features", minDF=2).fit(filteredDF)
 
-    countVectors = vectorizer.transform(filteredDF).select("id", "features")
+    countVectors = vectorizer.transform(filteredDF).select(["id", "features"])
 
     lda_countVector = countVectors.map(lambda x: (x['id'], x['features']))
 
     numTopics = 20
 
-    lda = LDA().setOptimizer(OnlineLDAOptimizer().setMiniBatchFraction(0.8)).setK(numTopics).setMaxIterations(3).setDocConcentration(-1).setTopicConcentration(-1)
-
-    ldaModel = lda.run(lda_countVector)
+    lda = LDA(k=numTopics)
+    ldaModel = lda.fit(lda_countVector)
