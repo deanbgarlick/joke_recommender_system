@@ -14,17 +14,14 @@ if __name__ == "__main__":
 
     jokesDF = spark.read.schema(StructType([ StructField("jokeID", IntegerType(), False), StructField("text", StringType(),False)])).csv('s3://aws-emr-resources-257018485161-us-east-1/jokes_3.csv', header='true')
 
-    tokenizer = Tokenizer().setMinTokenLength(4).setInputCol("text").setOutputCol("tokens")
-
+    tokenizer = Tokenizer(inputCol="text", outputCol ="tokens")
     tokenizedDF = tokenizer.transform(jokesDF)
 
     stopwords = sc.textFile("s3://aws-emr-resources-257018485161-us-east-1/stopwords").collect()
-
-    remover = StopWordsRemover().setStopWords(stopwords).setInputCol("tokens").setOutputCol("filtered")
-
+    remover = StopWordsRemover(stopWords=stopwords, inputCol="tokens", outputCol="filtered")
     filteredDF = remover.transform(tokenizedDF)
 
-    vectorizer = CountVectorizer().setInputCol("filtered").setOutputCol("features").setVocabSize(10000).setMinDF(5).fit(filteredDF)
+    vectorizer = CountVectorizer(inputCol="filtered", outputCol="features", vocabSize=10000, minDF=5).fit(filteredDF)
 
     countVectors = vectorizer.transform(filteredDF).select("id", "features")
 
