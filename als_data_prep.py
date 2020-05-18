@@ -24,13 +24,13 @@ if __name__ == '__main__':
         if jokeID != 'userID':
             if jokeID in ['105', '115', '125']:
                 jokeRatings = inputDF.select(['userID', jokeID])
-                distinctJokeRatings = jokeRatings.select(countDistinct(jokeID)).collect()[0][0]
-                if distinctJokeRatings != 1:
-                    jokeRatings = jokeRatings.filter((jokeRatings[jokeID]!=99)&(jokeRatings[jokeID]!=99.)&(jokeRatings[jokeID]!=99.0))
-                    jokeRatings = jokeRatings.withColumn('jokeID', lit(int(jokeID)))
-                    jokeRatings = jokeRatings.withColumn("rating", jokeRatings[jokeID].cast(DoubleType()))
-                    jokeRatings = jokeRatings.drop(jokeID)
-                    allJokeRatingsDF = allJokeRatingsDF.union(jokeRatings)
+                #distinctJokeRatings = jokeRatings.select(countDistinct(jokeID)).collect()[0][0]
+                #if distinctJokeRatings != 1:
+                jokeRatings = jokeRatings.filter((jokeRatings[jokeID]!=99)&(jokeRatings[jokeID]!=99.)&(jokeRatings[jokeID]!=99.0))
+                jokeRatings = jokeRatings.withColumn('jokeID', lit(int(jokeID)))
+                jokeRatings = jokeRatings.withColumn("rating", jokeRatings[jokeID].cast(DoubleType()))
+                jokeRatings = jokeRatings.drop(jokeID)
+                allJokeRatingsDF = allJokeRatingsDF.union(jokeRatings)
 
     allJokeRatingsDF.write.mode("overwrite").parquet("s3://aws-emr-resources-257018485161-us-east-1/ratings_3_als.parquet")
 
