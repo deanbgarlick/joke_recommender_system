@@ -18,7 +18,7 @@ if __name__ == '__main__':
 
     (training, test) = ratingsDF.randomSplit([0.8, 0.2])
 
-    als = ALS(maxIter=5, regParam=0.01, userCol="userId", itemCol="movieId", ratingCol="rating",
+    als = ALS(maxIter=5, regParam=0.01, userCol="userID", itemCol="jokeID", ratingCol="rating",
               coldStartStrategy="drop")
 
     model = als.fit(training)
