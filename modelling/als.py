@@ -4,7 +4,7 @@ from pyspark.sql import SparkSession
 from pyspark.sql.context import SQLContext
 
 
-if __name__ == "__main__":
+def main():
 
     spark = SparkSession.builder.appName("fit_ALS_model").getOrCreate()
 
@@ -36,3 +36,7 @@ if __name__ == "__main__":
     print("Root-mean-square error = " + str(rmse))
 
     spark.stop()
+
+
+if __name__ == "__main__":
+    main()

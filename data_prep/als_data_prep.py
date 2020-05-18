@@ -4,7 +4,7 @@ from pyspark.sql.functions import lit, countDistinct
 from pyspark.sql.types import StructField, StructType, IntegerType, DoubleType
 
 
-if __name__ == "__main__":
+def main():
 
     spark = SparkSession.builder.appName("prep_data_for_ALS").getOrCreate()
 
@@ -17,8 +17,8 @@ if __name__ == "__main__":
             header="true",
             inferSchema="true",
         )
-        .withColumnRenamed("_c0", "userID")
-        .drop("0")
+            .withColumnRenamed("_c0", "userID")
+            .drop("0")
     )
 
     fields = [
@@ -48,3 +48,7 @@ if __name__ == "__main__":
     )
 
     spark.stop()
+
+
+if __name__ == "__main__":
+    main()

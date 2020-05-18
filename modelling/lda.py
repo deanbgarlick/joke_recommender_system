@@ -5,12 +5,11 @@ from pyspark.sql.context import SQLContext
 from pyspark.sql.types import StructField, StructType, IntegerType, StringType
 
 
-if __name__ == "__main__":
+def main():
 
     spark = SparkSession.builder.appName("fit_LDA_model").getOrCreate()
 
     sc = spark.sparkContext
-    sqlContext = SQLContext(sc)
 
     jokesDF = spark.read.schema(StructType([ StructField("jokeID", IntegerType(), False), StructField("text", StringType(),False)])).csv('s3://aws-emr-resources-257018485161-us-east-1/jokes_3.csv', header='true')
 
@@ -29,3 +28,9 @@ if __name__ == "__main__":
 
     lda = LDA(k=numTopics)
     ldaModel = lda.fit(countVectors, seed=1)
+
+    spark.stop()
+
+
+if __name__ == "__main__":
+    main()
