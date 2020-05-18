@@ -24,7 +24,7 @@ if __name__ == '__main__':
         if jokeID != 'userID':
             if jokeID!='0':
                 jokeRatings = inputDF.select(['userID', jokeID])
-                jokeRatings = jokeRatings.filter((jokeRatings[jokeID]>10)|(jokeRatings[jokeID]<-10))
+                jokeRatings = jokeRatings.filter((jokeRatings[jokeID]>10)&(jokeRatings[jokeID]>-10))
                 jokeRatings = jokeRatings.withColumn('jokeID', lit(int(jokeID)))
                 jokeRatings = jokeRatings.withColumn("rating", jokeRatings[jokeID].cast(DoubleType()))
                 jokeRatings = jokeRatings.drop(jokeID)
