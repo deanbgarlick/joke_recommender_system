@@ -1,4 +1,5 @@
 from pyspark.sql import SparkSession
+from pyspark.sql.context import SQLContext
 from pyspark.sql.functions import lit, countDistinct
 from pyspark.sql.types import StructField, StructType, IntegerType, DoubleType
 
@@ -11,6 +12,7 @@ if __name__ == '__main__':
         .getOrCreate()
 
     sc = spark.sparkContext
+    sqlContext = SQLContext(sc)
 
     inputDF = spark.read.csv('s3://aws-emr-resources-257018485161-us-east-1/ratings_3.csv', header='true', inferSchema='true').withColumnRenamed('_c0', 'userID').drop('0')
 
