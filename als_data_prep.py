@@ -6,7 +6,7 @@ from pyspark.sql.types import StructField, StructType, IntegerType, DoubleType
 
 if __name__ == "__main__":
 
-    spark = SparkSession.builder.appName("ALS_Data_Prep").getOrCreate()
+    spark = SparkSession.builder.appName("prep_data_for_ALS").getOrCreate()
 
     sc = spark.sparkContext
     sqlContext = SQLContext(sc)

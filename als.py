@@ -6,7 +6,7 @@ from pyspark.sql.context import SQLContext
 
 if __name__ == "__main__":
 
-    spark = SparkSession.builder.appName("ALS_Data_Prep").getOrCreate()
+    spark = SparkSession.builder.appName("fit_ALS_model").getOrCreate()
 
     sc = spark.sparkContext
     sqlContext = SQLContext(sc)
