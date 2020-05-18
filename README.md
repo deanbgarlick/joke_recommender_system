@@ -1,8 +1,8 @@
 # joke_recommender_system
 
-Repo to implement the building of a joke recommendation system on data belonging to the Jester Dataset avaliable at url http://eigentaste.berkeley.edu/dataset/ 
+Repo to implement the building of a joke recommendation system in PySpark on data belonging to the Jester Dataset avaliable at url http://eigentaste.berkeley.edu/dataset/ 
 
-To build the recommendation system the following Pyspark ML classes will be fitted:
+To build the recommendation system the following PySpark ML classes will be fitted:
  (1) Alternating Least Squares (ALS)
  (2) Latent Dirichlet Allocation (LDA)
  
