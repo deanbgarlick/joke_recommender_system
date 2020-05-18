@@ -41,7 +41,7 @@ def main():
 
     lda = LDA(k=numTopics)
     ldaModel = lda.fit(countVectors, seed=1)
-    ldaModel.save("ldaModel")
+    ldaModel.save("s3://aws-emr-resources-257018485161-us-east-1/ldaModel")
 
     spark.stop()
 
