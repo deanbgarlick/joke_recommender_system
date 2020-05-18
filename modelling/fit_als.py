@@ -26,15 +26,16 @@ def main():
         coldStartStrategy="drop",
     )
 
-    model = als.fit(training)
+    alsModel = als.fit(training)
 
-    predictions = model.transform(test)
+    predictions = alsModel.transform(test)
     evaluator = RegressionEvaluator(
         metricName="rmse", labelCol="rating", predictionCol="prediction"
     )
     rmse = evaluator.evaluate(predictions)
     print("Root-mean-square error = " + str(rmse))
 
+    alsModel.save("alsModel")
     spark.stop()
 
 

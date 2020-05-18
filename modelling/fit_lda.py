@@ -41,6 +41,7 @@ def main():
 
     lda = LDA(k=numTopics)
     ldaModel = lda.fit(countVectors, seed=1)
+    ldaModel.save("ldaModel")
 
     spark.stop()
 
