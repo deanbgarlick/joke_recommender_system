@@ -11,16 +11,29 @@ def main():
 
     sc = spark.sparkContext
 
-    jokesDF = spark.read.schema(StructType([ StructField("jokeID", IntegerType(), False), StructField("text", StringType(),False)])).csv('s3://aws-emr-resources-257018485161-us-east-1/jokes_3.csv', header='true')
+    jokesDF = spark.read.schema(
+        StructType(
+            [
+                StructField("jokeID", IntegerType(), False),
+                StructField("text", StringType(), False),
+            ]
+        )
+    ).csv("s3://aws-emr-resources-257018485161-us-east-1/jokes_3.csv", header="true")
 
-    tokenizer = Tokenizer(inputCol="text", outputCol ="tokens")
+    tokenizer = Tokenizer(inputCol="text", outputCol="tokens")
     tokenizedDF = tokenizer.transform(jokesDF)
 
-    stopwords = sc.textFile("s3://aws-emr-resources-257018485161-us-east-1/stopwords").collect()
-    remover = StopWordsRemover(stopWords=stopwords, inputCol="tokens", outputCol="filtered")
+    stopwords = sc.textFile(
+        "s3://aws-emr-resources-257018485161-us-east-1/stopwords"
+    ).collect()
+    remover = StopWordsRemover(
+        stopWords=stopwords, inputCol="tokens", outputCol="filtered"
+    )
     filteredDF = remover.transform(tokenizedDF)
 
-    vectorizer = CountVectorizer(inputCol="filtered", outputCol="features", minDF=2).fit(filteredDF)
+    vectorizer = CountVectorizer(
+        inputCol="filtered", outputCol="features", minDF=2
+    ).fit(filteredDF)
 
     countVectors = vectorizer.transform(filteredDF).select(["jokeID", "features"])
 
