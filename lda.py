@@ -11,7 +11,7 @@ if __name__ == "__main__":
 
     sc = spark.sparkContext
     sqlContext = SQLContext(sc)
-    
+
     jokesDF = spark.read.schema(StructType([ StructField("jokeID", IntegerType(), False), StructField("text", StringType(),False)])).csv('s3://aws-emr-resources-257018485161-us-east-1/jokes_3.csv', header='true')
 
     tokenizer = Tokenizer(inputCol="text", outputCol ="tokens")
@@ -23,11 +23,9 @@ if __name__ == "__main__":
 
     vectorizer = CountVectorizer(inputCol="filtered", outputCol="features", minDF=2).fit(filteredDF)
 
-    countVectors = vectorizer.transform(filteredDF).select(["id", "features"])
-
-    lda_countVector = countVectors.map(lambda x: (x['id'], x['features']))
+    countVectors = vectorizer.transform(filteredDF).select(["jokeID", "features"])
 
     numTopics = 20
 
     lda = LDA(k=numTopics)
-    ldaModel = lda.fit(lda_countVector)
+    ldaModel = lda.fit(countVectors, seed=1)
