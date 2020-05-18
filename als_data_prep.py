@@ -18,3 +18,4 @@ for jokeID in inputDF.columns:
                 jokeRatings = jokeRatings.drop(jokeID)
                 allJokeRatingsDF = allJokeRatingsDF.union(jokeRatings)
 
+allJokeRatingsDF.write.parquet("s3://aws-emr-resources-257018485161-us-east-1/ratings_3_als.parquet")
