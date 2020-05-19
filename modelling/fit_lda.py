@@ -52,6 +52,7 @@ def print_topic(topic, i):
     print(str(topic) + ": " +str(i))
     topic.foreach(lambda term, weight: print(str(term) + ": " + str(weight)))
 
+
 def print_topics():
 
     ldaPipelineModel = PipelineModel.load("s3://aws-emr-resources-257018485161-us-east-1/ldaPipelineModel")
@@ -60,7 +61,7 @@ def print_topics():
     ldaModel = ldaPipelineModel.stages[3]
     topicIndices = ldaModel.describeTopics(maxTermsPerTopic=5)
     topics = topicIndices.rdd.map(lambda terms, termWeights: terms.map(vocabList).zip(termWeights))
-    topics.zipWithIndex().foreach()
+    topics.zipWithIndex().foreach(lambda topic, i: print_topic(topic, i))
 
 
 if __name__ == "__main__":
