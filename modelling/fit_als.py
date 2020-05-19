@@ -1,15 +1,11 @@
 from pyspark.ml.evaluation import RegressionEvaluator
 from pyspark.ml.recommendation import ALS
 from pyspark.sql import SparkSession
-from pyspark.sql.context import SQLContext
 
 
 def main():
 
     spark = SparkSession.builder.appName("fit_ALS_model").getOrCreate()
-
-    sc = spark.sparkContext
-    sqlContext = SQLContext(sc)
 
     ratingsDF = spark.read.load(
         "s3://aws-emr-resources-257018485161-us-east-1/ratings_3_als.parquet"

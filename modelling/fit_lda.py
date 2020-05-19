@@ -1,7 +1,6 @@
 from pyspark.ml.clustering import LDA
 from pyspark.ml.feature import Tokenizer, StopWordsRemover, CountVectorizer
 from pyspark.sql import SparkSession
-from pyspark.sql.context import SQLContext
 from pyspark.sql.types import StructField, StructType, IntegerType, StringType
 
 
