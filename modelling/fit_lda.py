@@ -33,14 +33,13 @@ def main():
     vectorizer = CountVectorizer(
         inputCol="filtered", outputCol="features", minDF=2
     ).fit(filteredDF)
-
     countVectors = vectorizer.transform(filteredDF).select(["jokeID", "features"])
 
     numTopics = 20
 
     lda = LDA(k=numTopics)
     ldaModel = lda.fit(countVectors)
-    ldaModel.save("s3://aws-emr-resources-257018485161-us-east-1/ldaModel")
+    ldaModel.write().overwrite().save("s3://aws-emr-resources-257018485161-us-east-1/ldaModel")
 
     spark.stop()
 

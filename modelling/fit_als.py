@@ -31,7 +31,7 @@ def main():
     rmse = evaluator.evaluate(predictions)
     print("Root-mean-square error = " + str(rmse))
 
-    alsModel.save("s3://aws-emr-resources-257018485161-us-east-1/alsModel")
+    alsModel.write().overwrite().save("s3://aws-emr-resources-257018485161-us-east-1/alsModel")
     spark.stop()
 
 
