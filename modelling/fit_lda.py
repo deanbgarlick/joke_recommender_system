@@ -33,7 +33,7 @@ def main():
         stopWords=stopwords, inputCol=tokenizer.getOutputCol(), outputCol="filtered"
     )
     vectorizer = CountVectorizer(
-        inputCol=StopWordsRemover.getOutputCol(), outputCol="features", minDF=2
+        inputCol=remover.getOutputCol(), outputCol="features", minDF=2
     )
     lda = LDA(k=numTopics)
 
