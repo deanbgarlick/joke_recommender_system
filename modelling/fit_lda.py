@@ -3,7 +3,7 @@ from pyspark.ml.clustering import LDA
 from pyspark.ml.feature import Tokenizer, StopWordsRemover, CountVectorizer
 from pyspark.sql import SparkSession
 from pyspark.sql.types import StructField, StructType, IntegerType, StringType, ArrayType
-from pyspark.sql.functions import udf
+
 
 def main():
 
