@@ -1,4 +1,4 @@
-from pyspark.ml import Pipeline
+from pyspark.ml import Pipeline, PipelineModel
 from pyspark.ml.clustering import LDA
 from pyspark.ml.feature import Tokenizer, StopWordsRemover, CountVectorizer
 from pyspark.sql import SparkSession
@@ -47,5 +47,22 @@ def main():
     spark.stop()
 
 
+def print_topic(topic, i):
+    print("\n\n")
+    print(str(topic) + ": " +str(i))
+    topic.foreach(lambda term, weight: print(str(term) + ": " + str(weight)))
+
+def print_topics():
+
+    ldaPipelineModel = PipelineModel.load("s3://aws-emr-resources-257018485161-us-east-1/ldaPipelineModel")
+    countVectorizer = ldaPipelineModel.stages[2]
+    vocabList = countVectorizer.vocabulary
+    ldaModel = ldaPipelineModel.stages[3]
+    topicIndices = ldaModel.describeTopics(maxTermsPerTopic=5)
+    topics = topicIndices.rdd.map(lambda terms, termWeights: terms.map(vocabList).zip(termWeights))
+    topics.zipWithIndex().foreach()
+
+
 if __name__ == "__main__":
     main()
+    print_topics()
