@@ -2,8 +2,8 @@ from pyspark.ml import Pipeline, PipelineModel
 from pyspark.ml.clustering import LDA
 from pyspark.ml.feature import Tokenizer, StopWordsRemover, CountVectorizer
 from pyspark.sql import SparkSession
-from pyspark.sql.types import StructField, StructType, IntegerType, StringType
-
+from pyspark.sql.types import StructField, StructType, IntegerType, StringType, ArrayType
+from pyspark.sql.functions import udf
 
 def main():
 
@@ -49,8 +49,8 @@ def main():
 
 def print_topic(topic, i):
     print("\n\n")
-    print(str(topic) + ": " +str(i))
-    topic.foreach(lambda term, weight: print(str(term) + ": " + str(weight)))
+    print("Topic: " + str(i))
+    list(map(lambda x: print(str(x[0]) + ": " + str(x[1])), topic)) # x = ( term, weight)
 
 
 def print_topics():
@@ -60,8 +60,10 @@ def print_topics():
     vocabList = countVectorizer.vocabulary
     ldaModel = ldaPipelineModel.stages[3]
     topicIndices = ldaModel.describeTopics(maxTermsPerTopic=5)
-    topics = topicIndices.rdd.map(lambda terms, termWeights: terms.map(vocabList).zip(termWeights))
-    topics.zipWithIndex().foreach(lambda topic, i: print_topic(topic, i))
+    #topics = topicIndices.rdd.map(lambda x: x.termIndices.map(lambda n: vocabList[n]).zip(x[2])) # x = ( terms, termIndices, termWeights )
+    topics = topicIndices.rdd.map(lambda x: list(zip(list(map(lambda n: vocabList[n], x.termIndices)), x.termWeights))) # x = ( terms, termIndices, termWeights )
+    topicsWithIndex = list(enumerate(topics.collect()))
+    list(map(lambda x: print_topic(x[1], x[0]), topicsWithIndex))
 
 
 if __name__ == "__main__":
