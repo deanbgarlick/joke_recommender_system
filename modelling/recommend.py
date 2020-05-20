@@ -1,5 +1,7 @@
-from modelling.fit_als import load_als_model
-from modelling.fit_lda import load_lda_model
+from pyspark.sql import SparkSession
+
+from fit_als import load_als_model
+from fit_lda import load_lda_model
 
 
 def main():
@@ -9,4 +11,10 @@ def main():
 
 
 if __name__ == "__main__":
+    
+    global spark 
+    spark = SparkSession.builder.appName("fit_LDA_model").getOrCreate()
+    
+    global sc
+    sc = spark.sparkContext
     main()
