@@ -1,19 +1,19 @@
 from pyspark.ml import Pipeline, PipelineModel
 from pyspark.ml.clustering import LDA
-from pyspark.ml.feature import Tokenizer, StopWordsRemover, CountVectorizer
+from pyspark.ml.feature import Tokenizer, StopWordsRemover, CountVectorizer, SQLTransformer
 from pyspark.sql import SparkSession
 from pyspark.sql.types import StructField, StructType, IntegerType, StringType, ArrayType
 from pyspark.sql.functions import udf
 
 
-@udf(StringType())
-def clean_text_udf(text):
-    text = text.lower()
-    items_to_remove = ["'", '"', ';', '!', '.', ',', '-', '_']
-    for item in items_to_remove:
-        text = text.replace(item, '')
-    print(text)
-    return text
+#@udf(StringType())
+#def clean_text_udf(text):
+#    text = text.lower()
+#    items_to_remove = ["'", '"', ';', '!', '.', ',', '-', '_']
+#    for item in items_to_remove:
+#        text = text.replace(item, '')
+#    print(text)
+#    return text
 
 
 def main():
@@ -27,7 +27,13 @@ def main():
         )
     ).csv("s3://aws-emr-resources-257018485161-us-east-1/jokes_3.csv", header="true")
 
-    jokesDF = jokesDF.withColumn("text", clean_text_udf("raw_text"))
+    clean_text_udf = spark.udf.register(
+        "clean_text_udf",
+        lambda row: sum(len(char) for char in row),
+        "integer"
+    )
+
+    #jokesDF = jokesDF.withColumn("text", clean_text_udf("raw_text"))
 
     (training, test) = jokesDF.randomSplit([0.8, 0.2])
 
@@ -46,7 +52,12 @@ def main():
     )
     lda = LDA(k=numTopics)
 
-    pipeline = Pipeline(stages=[tokenizer, remover, vectorizer, lda])
+    pipeline = Pipeline(stages=[
+        SQLTransformer(statement="SELECT jokeID, clean_text_udf(raw_text) text FROM __THIS__"),
+        tokenizer,
+        remover,
+        vectorizer,
+        lda])
 
     model = pipeline.fit(training)
     model.write().overwrite().save("s3://aws-emr-resources-257018485161-us-east-1/ldaPipelineModel")
