@@ -3,6 +3,16 @@ from pyspark.ml.clustering import LDA
 from pyspark.ml.feature import Tokenizer, StopWordsRemover, CountVectorizer
 from pyspark.sql import SparkSession
 from pyspark.sql.types import StructField, StructType, IntegerType, StringType, ArrayType
+from pyspark.sql.functions import udf
+
+
+@udf(StringType())
+def clean_text_udf(text):
+    text = text.lower()
+    items_to_remove = ["'", '"', ';', '!', '.', ',']
+    for item in items_to_remove:
+        text = text.replace(item, '')
+    return text
 
 
 def main():
@@ -11,7 +21,7 @@ def main():
         StructType(
             [
                 StructField("jokeID", IntegerType(), False),
-                StructField("text", StringType(), False),
+                StructField("raw_text", StringType(), False),
             ]
         )
     ).csv("s3://aws-emr-resources-257018485161-us-east-1/jokes_3.csv", header="true")
@@ -22,7 +32,9 @@ def main():
         "s3://aws-emr-resources-257018485161-us-east-1/stopwords"
     ).collect()
 
-    numTopics = 20
+    numTopics = 4
+
+    jokesDF.withColumn("text", clean_text_udf("raw_text"))
 
     tokenizer = Tokenizer(inputCol="text", outputCol="tokens")
     remover = StopWordsRemover(
@@ -55,14 +67,11 @@ def print_topics():
     vocabList = countVectorizer.vocabulary
     ldaModel = ldaPipelineModel.stages[3]
     topicIndices = ldaModel.describeTopics(maxTermsPerTopic=5)
-    topicIndices.sql_ctx.sparkSession._jsparkSession = spark._jsparkSession
-    topicIndices._sc = spark._sc
-    foo = topicIndices.rdd.collect()
     #topics = topicIndices.rdd.map(lambda x: x.termIndices.map(lambda n: vocabList[n]).zip(x[2])) # x = ( terms, termIndices, termWeights )
-    #topics = topicIndices.rdd.map(lambda x: list(zip(list(map(lambda n: vocabList[n], x.termIndices)), x.termWeights))) # x = ( terms, termIndices, termWeights )
-    topics = [list(zip(list(map(lambda n: vocabList[n], x.termIndices)), x.termWeights)) for x in topicIndices.rdd.collect()]
-    topicsWithIndex = list(enumerate(topics))
-    list(map(lambda x: print_topic(x[1], x[0]), topicsWithIndex))
+    topics = topicIndices.rdd.map(lambda x: list(zip(list(map(lambda n: vocabList[n], x.termIndices)), x.termWeights))) # x = ( terms, termIndices, termWeights )
+    #topics = [list(zip(list(map(lambda n: vocabList[n], x.termIndices)), x.termWeights)) for x in topicIndices.rdd.collect()]
+    topicsWithIndex = topics.zipWithIndex()
+    list(map(lambda x: print_topic(x[0], x[1]), topicsWithIndex.collect()))
 
 
 if __name__ == "__main__":
