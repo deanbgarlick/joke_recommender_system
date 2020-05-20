@@ -12,6 +12,7 @@ def clean_text_udf(text):
     items_to_remove = ["'", '"', ';', '!', '.', ',']
     for item in items_to_remove:
         text = text.replace(item, '')
+    print(text)
     return text
 
 
@@ -26,6 +27,8 @@ def main():
         )
     ).csv("s3://aws-emr-resources-257018485161-us-east-1/jokes_3.csv", header="true")
 
+    jokesDF = jokesDF.withColumn("text", clean_text_udf("raw_text"))
+
     (training, test) = jokesDF.randomSplit([0.8, 0.2])
 
     stopwords = sc.textFile(
@@ -33,8 +36,6 @@ def main():
     ).collect()
 
     numTopics = 4
-
-    jokesDF.withColumn("text", clean_text_udf("raw_text"))
 
     tokenizer = Tokenizer(inputCol="text", outputCol="tokens")
     remover = StopWordsRemover(
