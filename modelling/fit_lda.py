@@ -54,11 +54,11 @@ def print_topic(topic, i):
 
 
 def print_topics():
-ldaPipelineModel = PipelineModel.load("s3://aws-emr-resources-257018485161-us-east-1/ldaPipelineModel")
-countVectorizer = ldaPipelineModel.stages[2]
-vocabList = countVectorizer.vocabulary
-ldaModel = ldaPipelineModel.stages[3]
-topicIndices = ldaModel.describeTopics(maxTermsPerTopic=5)
+    ldaPipelineModel = PipelineModel.load("s3://aws-emr-resources-257018485161-us-east-1/ldaPipelineModel")
+    countVectorizer = ldaPipelineModel.stages[2]
+    vocabList = countVectorizer.vocabulary
+    ldaModel = ldaPipelineModel.stages[3]
+    topicIndices = ldaModel.describeTopics(maxTermsPerTopic=5)
     #topics = topicIndices.rdd.map(lambda x: x.termIndices.map(lambda n: vocabList[n]).zip(x[2])) # x = ( terms, termIndices, termWeights )
     #topics = topicIndices.rdd.map(lambda x: list(zip(list(map(lambda n: vocabList[n], x.termIndices)), x.termWeights))) # x = ( terms, termIndices, termWeights )
     topics = [list(zip(list(map(lambda n: vocabList[n], x.termIndices)), x.termWeights)) for x in topicIndices.rdd.collect()]
