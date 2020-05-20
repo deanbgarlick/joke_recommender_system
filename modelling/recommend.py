@@ -8,4 +8,3 @@ def main(spark):
     alsModel = load_als_model()
     print_topics(ldaModel)
 
-
