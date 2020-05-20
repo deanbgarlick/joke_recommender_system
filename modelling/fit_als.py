@@ -1,11 +1,14 @@
 from pyspark.ml.evaluation import RegressionEvaluator
-from pyspark.ml.recommendation import ALS
+from pyspark.ml.recommendation import ALS, ALSModel
 from pyspark.sql import SparkSession
 
 
-def main():
+def load_als_model():
+    alsModel = ALSModel.load('s3://aws-emr-resources-257018485161-us-east-1/alsModel')
+    return alsModel
 
-    spark = SparkSession.builder.appName("fit_ALS_model").getOrCreate()
+
+def main():
 
     ratingsDF = spark.read.load(
         "s3://aws-emr-resources-257018485161-us-east-1/ratings_3_als.parquet"
@@ -36,4 +39,6 @@ def main():
 
 
 if __name__ == "__main__":
+
+    spark = SparkSession.builder.appName("fit_ALS_model").getOrCreate()
     main()
