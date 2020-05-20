@@ -16,6 +16,15 @@ from pyspark.sql.functions import udf
 #    return text
 
 
+def clean_text(text):
+    text = text.lower()
+    items_to_remove = ["'", '"', ';', '!', '.', ',', '-', '_']
+    for item in items_to_remove:
+        text = text.replace(item, '')
+    print(text)
+    return text
+
+
 def main():
 
     jokesDF = spark.read.schema(
@@ -29,8 +38,8 @@ def main():
 
     clean_text_udf = spark.udf.register(
         "clean_text_udf",
-        lambda row: sum(len(char) for char in row),
-        "integer"
+        lambda row: clean_text(row),
+        StringType()
     )
 
     #jokesDF = jokesDF.withColumn("text", clean_text_udf("raw_text"))
