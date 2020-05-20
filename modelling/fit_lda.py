@@ -9,7 +9,7 @@ from pyspark.sql.functions import udf
 @udf(StringType())
 def clean_text_udf(text):
     text = text.lower()
-    items_to_remove = ["'", '"', ';', '!', '.', ',']
+    items_to_remove = ["'", '"', ';', '!', '.', ',', '-', '_']
     for item in items_to_remove:
         text = text.replace(item, '')
     print(text)
@@ -80,4 +80,3 @@ if __name__ == "__main__":
     spark = SparkSession.builder.appName("fit_LDA_model").getOrCreate()
     sc = spark.sparkContext
     main()
-    print_topics()
