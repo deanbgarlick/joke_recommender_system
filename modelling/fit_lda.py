@@ -7,10 +7,6 @@ from pyspark.sql.types import StructField, StructType, IntegerType, StringType, 
 
 def main():
 
-    spark = SparkSession.builder.appName("fit_LDA_model").getOrCreate()
-
-    sc = spark.sparkContext
-
     jokesDF = spark.read.schema(
         StructType(
             [
@@ -59,6 +55,9 @@ def print_topics():
     vocabList = countVectorizer.vocabulary
     ldaModel = ldaPipelineModel.stages[3]
     topicIndices = ldaModel.describeTopics(maxTermsPerTopic=5)
+    topicIndices.sql_ctx.sparkSession._jsparkSession = spark._jsparkSession
+    topicIndices._sc = spark._sc
+    foo = topicIndices.rdd.collect()
     #topics = topicIndices.rdd.map(lambda x: x.termIndices.map(lambda n: vocabList[n]).zip(x[2])) # x = ( terms, termIndices, termWeights )
     #topics = topicIndices.rdd.map(lambda x: list(zip(list(map(lambda n: vocabList[n], x.termIndices)), x.termWeights))) # x = ( terms, termIndices, termWeights )
     topics = [list(zip(list(map(lambda n: vocabList[n], x.termIndices)), x.termWeights)) for x in topicIndices.rdd.collect()]
@@ -67,5 +66,8 @@ def print_topics():
 
 
 if __name__ == "__main__":
+
+    spark = SparkSession.builder.appName("fit_LDA_model").getOrCreate()
+    sc = spark.sparkContext
     main()
     print_topics()
