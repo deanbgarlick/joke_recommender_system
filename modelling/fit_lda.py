@@ -30,7 +30,7 @@ def clean_text(text):
     return text
 
 
-def register_clean_text_udf():
+def register_clean_text_udf(spark):
     spark.udf.register(
         "clean_text_udf",
         lambda row: clean_text(row),
@@ -38,13 +38,13 @@ def register_clean_text_udf():
     )
 
 
-def load_lda_model():
-    register_clean_text_udf()
+def load_lda_model(spark):
+    register_clean_text_udf(spark)
     ldaPipelineModel = PipelineModel.load("s3://aws-emr-resources-257018485161-us-east-1/ldaPipelineModel")
     return ldaPipelineModel
 
 
-def main(numTopics):
+def main(spark, numTopics):
 
     jokesDF = spark.read.schema(
         StructType(
@@ -59,7 +59,9 @@ def main(numTopics):
 
     (training, test) = jokesDF.randomSplit([0.8, 0.2])
 
-    stopwords = sc.textFile(
+    register_clean_text_udf(spark)
+
+    stopwords = spark.sparkContext.textFile(
         "s3://aws-emr-resources-257018485161-us-east-1/stopwords"
     ).collect()
 
@@ -90,5 +92,4 @@ def main(numTopics):
 if __name__ == "__main__":
 
     spark = SparkSession.builder.appName("fit_LDA_model").getOrCreate()
-    sc = spark.sparkContext
-    main(numTopics=4)
+    main(spark, numTopics=4)
