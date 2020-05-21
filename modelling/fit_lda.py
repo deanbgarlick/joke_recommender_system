@@ -91,7 +91,7 @@ def main(spark, numTopics):
         lda])
 
     model = pipeline.fit(training)
-    model.stages[3].write().overwrite().save("s3://aws-emr-resources-257018485161-us-east-1/ldaPipelineModel")
+    #model.stages[3].write().overwrite().save("s3://aws-emr-resources-257018485161-us-east-1/ldaPipelineModel")
 
     prediction = model.transform(test)
 
@@ -104,4 +104,4 @@ if __name__ == "__main__":
 
     spark = SparkSession.builder.appName("fit_LDA_model").getOrCreate()
     test_clean_text(spark)
-    #main(spark, numTopics=4)
+    main(spark, numTopics=4)
