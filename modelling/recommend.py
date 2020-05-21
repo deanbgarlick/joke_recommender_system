@@ -54,4 +54,4 @@ def main(spark):
     jokesDF.createOrReplaceTempView("jokes")
 
     find_max_in_column_vectors = udf(lambda x: x.toDense.values.toSeq.indices.maxBy(x.toDense.values), IntegerType())
-    ldaModel.transform(jokesDF).select(find_max_in_column_vectors("topicDistribution").alias("dominantTopic"))
+    ldaModel.transform(jokesDF).select(find_max_in_column_vectors("topicDistribution").alias("dominantTopic")).show()
