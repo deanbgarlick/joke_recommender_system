@@ -29,6 +29,29 @@ def load_lda_model(spark):
     return ldaPipelineModel
 
 
+def test_clean_text(spark):
+
+    jokesDF = spark.read.schema(
+        StructType(
+            [
+                StructField("jokeID", IntegerType(), False),
+                StructField("raw_text", StringType(), False),
+            ]
+        )
+    ).csv("s3://aws-emr-resources-257018485161-us-east-1/jokes_3.csv", header="true")
+
+    # jokesDF = jokesDF.withColumn("text", clean_text_udf("raw_text"))
+
+    (training, test) = jokesDF.randomSplit([0.8, 0.2])
+
+    register_clean_text_udf(spark)
+
+    pipeline = Pipeline(
+        stages=[SQLTransformer(statement="SELECT jokeID, clean_text_udf(raw_text) text FROM __THIS__")]
+    )
+    pipeline.transform(test).show()
+
+
 def main(spark, numTopics):
 
     jokesDF = spark.read.schema(
@@ -67,7 +90,7 @@ def main(spark, numTopics):
         lda])
 
     model = pipeline.fit(training)
-    model.write().overwrite().save("s3://aws-emr-resources-257018485161-us-east-1/ldaPipelineModel")
+    model.stages[3].write().overwrite().save("s3://aws-emr-resources-257018485161-us-east-1/ldaPipelineModel")
 
     prediction = model.transform(test)
 
@@ -79,4 +102,5 @@ def main(spark, numTopics):
 if __name__ == "__main__":
 
     spark = SparkSession.builder.appName("fit_LDA_model").getOrCreate()
-    main(spark, numTopics=4)
+    test_clean_text(spark)
+    #main(spark, numTopics=4)
