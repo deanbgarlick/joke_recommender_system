@@ -1,4 +1,5 @@
 from pyspark.sql.types import StructField, StructType, IntegerType, StringType, ArrayType
+from pyspark.sql.functions import udf
 
 from .fit_als import load_als_model
 from .fit_lda import load_lda_model
@@ -52,5 +53,5 @@ def main(spark):
     ).csv("s3://aws-emr-resources-257018485161-us-east-1/jokes_3.csv", header="true")
     jokesDF.createOrReplaceTempView("jokes")
 
-    find_max_in_column_vectors = spark.udf(lambda x: x.toDense.values.toSeq.indices.maxBy(x.toDense.values))
-    ldaModel.transform(jokesDF).withColumn("max_idx", find_max_in_column_vectors("topicDistribution")).show()
+    find_max_in_column_vectors = udf(lambda x: x.toDense.values.toSeq.indices.maxBy(x.toDense.values), IntegerType())
+    ldaModel.transform(jokesDF).select("id", find_max_in_column_vectors("id").alias("id_squared"))
