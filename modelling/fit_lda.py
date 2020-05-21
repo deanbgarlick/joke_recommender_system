@@ -49,7 +49,8 @@ def test_clean_text(spark):
     pipeline = Pipeline(
         stages=[SQLTransformer(statement="SELECT jokeID, clean_text_udf(raw_text) text FROM __THIS__")]
     )
-    pipeline.transform(test).show()
+    model=pipeline.fit(training)
+    model.transform(test).show()
 
 
 def main(spark, numTopics):
