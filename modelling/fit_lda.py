@@ -71,6 +71,8 @@ def main(spark, numTopics):
 
     prediction = model.transform(test)
 
+    prediction.show()
+
     spark.stop()
 
 
