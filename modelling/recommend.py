@@ -1,3 +1,5 @@
+from pyspark.sql.types import StructField, StructType, IntegerType, StringType, ArrayType
+
 from .fit_als import load_als_model
 from .fit_lda import load_lda_model
 
@@ -18,11 +20,14 @@ def print_topics(ldaPipelineModel):
     list(map(lambda x: print_topic(x[0], x[1]), topicsWithIndex.collect()))
 
 
-def recommend_based_on_rating(alsModel):
+def process_joke_input(userId, ldaModel, alsModel):
+    pass
+
+def recommend_based_on_rating(alsModel, numRecommend):
     pass
 
 
-def recommend_based_on_category(ldaModel, lda_category):
+def recommend_based_on_category(ldaModel, alsModel, ldaCategory, numRecommend):
     pass
 
 
@@ -32,3 +37,20 @@ def main(spark):
     alsModel = load_als_model()
     print_topics(ldaModel)
 
+    ratingsDF = spark.read.load(
+        "s3://aws-emr-resources-257018485161-us-east-1/ratings_3_als.parquet"
+    )
+    ratingsDF.createOrReplaceTempView("ratings")
+
+    jokesDF = spark.read.schema(
+        StructType(
+            [
+                StructField("jokeID", IntegerType(), False),
+                StructField("raw_text", StringType(), False),
+            ]
+        )
+    ).csv("s3://aws-emr-resources-257018485161-us-east-1/jokes_3.csv", header="true")
+    jokesDF.createOrReplaceTempView("jokes")
+
+    find_max_in_column_vectors = spark.udf(lambda x: x.toDense.values.toSeq.indices.maxBy(x.toDense.values))
+    ldaModel.transform(jokesDF).withColumn("max_idx", find_max_in_column_vectors("topicDistribution")).show()
