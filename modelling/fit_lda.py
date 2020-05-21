@@ -25,7 +25,7 @@ def register_clean_text_udf(spark):
 def load_lda_model(spark):
     register_clean_text_udf(spark)
     ldaPipelineModel = PipelineModel.load("s3://aws-emr-resources-257018485161-us-east-1/ldaPipelineModel")
-    ldaPipelineModel.stages[0] = SQLTransformer(statement="SELECT jokeID, clean_text_udf(raw_text) text FROM __THIS__")
+    #ldaPipelineModel.stages[0] = SQLTransformer(statement="SELECT jokeID, clean_text_udf(raw_text) text FROM __THIS__")
     return ldaPipelineModel
 
 
@@ -91,7 +91,7 @@ def main(spark, numTopics):
         lda])
 
     model = pipeline.fit(training)
-    #model.stages[3].write().overwrite().save("s3://aws-emr-resources-257018485161-us-east-1/ldaPipelineModel")
+    model.write().overwrite().save("s3://aws-emr-resources-257018485161-us-east-1/ldaPipelineModel")
 
     prediction = model.transform(test)
 
