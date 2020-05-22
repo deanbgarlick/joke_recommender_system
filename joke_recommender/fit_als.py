@@ -27,6 +27,8 @@ def main():
 
     alsModel = als.fit(training)
 
+    test = test.na.drop()
+
     predictions = alsModel.transform(test)
     evaluator = RegressionEvaluator(
         metricName="rmse", labelCol="rating", predictionCol="prediction"
