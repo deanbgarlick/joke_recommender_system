@@ -1,12 +1,13 @@
 from pyspark.sql import SparkSession
 
-from modelling import recommend
+from joke_recommender import recommend
 
 
-def main():
-    spark = SparkSession.builder.appName("Recommendation").getOrCreate()
+def main(spark):
     recommend.main(spark)
 
 
 if __name__ == "__main__":
-    main()
+    spark = SparkSession.builder.appName("Recommendation").getOrCreate()
+    main(spark)
+    spark.stop()

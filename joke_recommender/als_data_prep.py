@@ -4,12 +4,9 @@ from pyspark.sql.functions import lit, countDistinct
 from pyspark.sql.types import StructField, StructType, IntegerType, DoubleType
 
 
-def main():
-
-    spark = SparkSession.builder.appName("prep_data_for_ALS").getOrCreate()
+def main(spark, sqlContext):
 
     sc = spark.sparkContext
-    sqlContext = SQLContext(sc)
 
     inputDF = (
         spark.read.csv(
@@ -31,7 +28,7 @@ def main():
 
     for jokeID in inputDF.columns:
         if jokeID != "userID":
-            if jokeID != "0":
+           if jokeID != "0":
                 jokeRatings = inputDF.select(["userID", jokeID])
                 jokeRatings = jokeRatings.filter(
                     (jokeRatings[jokeID] > 10) & (jokeRatings[jokeID] > -10)
@@ -47,8 +44,11 @@ def main():
         "s3://aws-emr-resources-257018485161-us-east-1/ratings_3_als.parquet"
     )
 
-    spark.stop()
-
 
 if __name__ == "__main__":
-    main()
+
+    spark = SparkSession.builder.appName("prep_data_for_ALS").getOrCreate()
+    sc = spark.sparkContext
+    sqlContext = SQLContext(sc)
+    main(spark, sqlContext)
+    spark.stop()
