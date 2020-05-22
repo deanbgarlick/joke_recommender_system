@@ -23,7 +23,7 @@ def register_remove_punctuation_udf(spark):
 
 
 def load_lda_model(spark):
-    register_clean_text_udf(spark)
+    register_remove_punctuation_udf(spark)
     ldaPipelineModel = PipelineModel.load("s3://aws-emr-resources-257018485161-us-east-1/ldaPipelineModel")
     #ldaPipelineModel.stages[0] = SQLTransformer(statement="SELECT jokeID, clean_text_udf(raw_text) text FROM __THIS__")
     return ldaPipelineModel
