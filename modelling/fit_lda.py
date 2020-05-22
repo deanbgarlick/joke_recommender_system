@@ -5,19 +5,19 @@ from pyspark.sql import SparkSession
 from pyspark.sql.types import StructField, StructType, IntegerType, StringType, ArrayType
 
 
-def clean_text(text):
+def remove_punctuation(text):
     text = text.lower()
-    items_to_remove = ["'", '"', ';', '!', '.', ',', '-', '_']
+    items_to_remove = ["'", '(', ')', '"', ':', ';', '!', '.', ',', '-', '_']
     for item in items_to_remove:
         text = text.replace(item, '')
     print(text)
     return text
 
 
-def register_clean_text_udf(spark):
+def register_remove_punctuation_udf(spark):
     spark.udf.register(
-        "clean_text_udf",
-        lambda row: clean_text(row),
+        "remove_punctuation_udf",
+        lambda row: remove_punctuation(row),
         StringType()
     )
 
@@ -47,7 +47,7 @@ def test_clean_text(spark):
     register_clean_text_udf(spark)
 
     pipeline = Pipeline(
-        stages=[SQLTransformer(statement="SELECT jokeID, clean_text_udf(raw_text) text FROM __THIS__")]
+        stages=[SQLTransformer(statement="SELECT jokeID, remove_punctuation_udf(raw_text) text FROM __THIS__")]
     )
     model=pipeline.fit(training)
     model.transform(test).show()
@@ -84,7 +84,7 @@ def main(spark, numTopics):
     lda = LDA(k=numTopics)
 
     pipeline = Pipeline(stages=[
-        SQLTransformer(statement="SELECT jokeID, clean_text_udf(raw_text) text FROM __THIS__"),
+        SQLTransformer(statement="SELECT jokeID, remove_punctuation_udf(raw_text) text FROM __THIS__"),
         tokenizer,
         remover,
         vectorizer,
