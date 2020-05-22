@@ -32,7 +32,7 @@ def main(spark, sqlContext):
                 jokeRatings = inputDF.select(["userID", jokeID])
                 jokeRatings = jokeRatings.withColumn("jokeID", lit(int(jokeID)))
                 jokeRatings = jokeRatings.withColumn(
-                    "rating", when(jokeRatings.jokeID.isin([99.0,99.,99], None)).otherwise(jokeRatings.jokeID.cast(DoubleType()))
+                    "rating", when(jokeRatings.jokeID.isin([99.0,99.,99]), None).otherwise(jokeRatings.jokeID.cast(DoubleType()))
                 )
                 jokeRatings = jokeRatings.drop(jokeID)
                 allJokeRatingsDF = allJokeRatingsDF.union(jokeRatings)
