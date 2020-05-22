@@ -16,6 +16,9 @@ def main():
 
     (training, test) = ratingsDF.randomSplit([0.8, 0.2])
 
+    training = training.na.drop()
+    test = test.na.drop()
+    
     als = ALS(
         maxIter=5,
         regParam=0.01,
@@ -27,7 +30,6 @@ def main():
 
     alsModel = als.fit(training)
 
-    test = test.na.drop()
     test.show()
 
     predictions = alsModel.transform(test)
