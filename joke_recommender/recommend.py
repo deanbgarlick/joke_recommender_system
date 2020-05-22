@@ -2,8 +2,6 @@ from pyspark.sql.types import StructField, StructType, IntegerType, StringType, 
 from pyspark.sql.functions import udf
 from pyspark.ml.linalg import Vectors
 
-from numpy import argmax
-
 from .fit_als import load_als_model
 from .fit_lda import load_lda_model, register_remove_punctuation_udf
 
@@ -35,6 +33,13 @@ def recommend_based_on_category(ldaModel, alsModel, ldaCategory, numRecommend):
     pass
 
 
+@udf(IntegerType())
+def find_max_in_column_vectors(x):
+    print(x)
+    print(type(x))
+    return Vectors.dense(x).argmax()
+
+
 def main(spark):
 
     ldaModel = load_lda_model(spark)
@@ -57,5 +62,4 @@ def main(spark):
     ).csv("s3://aws-emr-resources-257018485161-us-east-1/jokes_3.csv", header="true")
     jokesDF.createOrReplaceTempView("jokes")
 
-    find_max_in_column_vectors = udf(lambda x: Vectors.dense(x).argmax(), IntegerType())
     ldaModel.transform(jokesDF).select(find_max_in_column_vectors("topicDistribution").alias("dominantTopic")).show()
