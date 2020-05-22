@@ -7,7 +7,7 @@ from pyspark.sql.types import StructField, StructType, IntegerType, StringType, 
 
 def remove_punctuation(text):
     text = text.lower()
-    items_to_remove = ["'", '(', ')', '"', ':', ';', '!', '.', ',', '-', '_']
+    items_to_remove = ["'", '(', ')', '"', ':', ';', '!', '.', ',', '-', '_', '?']
     for item in items_to_remove:
         text = text.replace(item, '')
     print(text)
