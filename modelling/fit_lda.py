@@ -44,7 +44,7 @@ def test_clean_text(spark):
 
     (training, test) = jokesDF.randomSplit([0.8, 0.2])
 
-    register_clean_text_udf(spark)
+    register_remove_punctuation_udf(spark)
 
     pipeline = Pipeline(
         stages=[SQLTransformer(statement="SELECT jokeID, remove_punctuation_udf(raw_text) text FROM __THIS__")]
@@ -68,7 +68,7 @@ def main(spark, numTopics):
 
     (training, test) = jokesDF.randomSplit([0.8, 0.2])
 
-    register_clean_text_udf(spark)
+    register_remove_punctuation_udf(spark)
 
     stopwords = spark.sparkContext.textFile(
         "s3://aws-emr-resources-257018485161-us-east-1/stopwords"
