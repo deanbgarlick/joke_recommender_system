@@ -60,5 +60,6 @@ def main(spark):
     ).csv("s3://aws-emr-resources-257018485161-us-east-1/jokes_3.csv", header="true")
     jokesDF.createOrReplaceTempView("jokes")
 
+    ldaModel.transform(jokesDF).show()
     ldaModel.transform(jokesDF).select(find_max_in_column_vectors("topicDistribution").alias("dominantTopic")).show()
     #ldaModel.transform(jokesDF).rdd.map(lambda x: x.topicDistribution).show()
