@@ -33,7 +33,7 @@ def recommend_based_on_category(ldaModel, alsModel, ldaCategory, numRecommend):
     pass
 
 
-@udf(ArrayType(IntegerType()))
+#@udf(ArrayType(IntegerType()))
 def find_max_in_column_vectors(x):
     return x.argmax()
 
@@ -62,6 +62,9 @@ def main(spark):
 
     ldaModel.transform(jokesDF).show()
     jokesTransformed = ldaModel.transform(jokesDF)
-    jokesTransformed.select("jokeID", find_max_in_column_vectors("topicDistribution").alias("dominantTopic")).show()
+    jokesDistribution = jokesTransformed.select("jokeID", "topicDistribution")
+    foo = jokesDistribution.rdd.map(lambda x: find_max_in_column_vectors(x.topicDistribution))
+    foo.collect()
+
     #ldaModel.transform(jokesDF).select(find_max_in_column_vectors("topicDistribution").alias("dominantTopic")).show()
     #ldaModel.transform(jokesDF).rdd.map(lambda x: x.topicDistribution).show()
