@@ -2,7 +2,7 @@ from pyspark.sql.types import StructField, StructType, IntegerType, StringType, 
 from pyspark.sql.functions import udf
 
 from .fit_als import load_als_model
-from .fit_lda import load_lda_model
+from .fit_lda import load_lda_model, register_remove_punctuation_udf
 
 
 def print_topic(topic, i):
@@ -35,6 +35,7 @@ def recommend_based_on_category(ldaModel, alsModel, ldaCategory, numRecommend):
 def main(spark):
 
     ldaModel = load_lda_model(spark)
+    register_remove_punctuation_udf()
     alsModel = load_als_model()
     print_topics(ldaModel)
 
