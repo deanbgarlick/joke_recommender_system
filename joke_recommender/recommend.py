@@ -1,7 +1,7 @@
 from pyspark.sql.types import StructField, StructType, IntegerType, StringType, ArrayType
 from pyspark.sql.functions import udf
 
-from numpy import amax
+from numpy import argmax
 
 from .fit_als import load_als_model
 from .fit_lda import load_lda_model, register_remove_punctuation_udf
@@ -56,5 +56,5 @@ def main(spark):
     ).csv("s3://aws-emr-resources-257018485161-us-east-1/jokes_3.csv", header="true")
     jokesDF.createOrReplaceTempView("jokes")
 
-    find_max_in_column_vectors = udf(lambda x: amax(x), IntegerType())
+    find_max_in_column_vectors = udf(lambda x: x.topicDistribution.argmax(), IntegerType())
     ldaModel.transform(jokesDF).select(find_max_in_column_vectors("topicDistribution").alias("dominantTopic")).show()
