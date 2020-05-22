@@ -35,7 +35,7 @@ def recommend_based_on_category(ldaModel, alsModel, ldaCategory, numRecommend):
 def main(spark):
 
     ldaModel = load_lda_model(spark)
-    register_remove_punctuation_udf()
+    register_remove_punctuation_udf(spark)
     alsModel = load_als_model()
     print_topics(ldaModel)
 
