@@ -33,10 +33,9 @@ def recommend_based_on_category(ldaModel, alsModel, ldaCategory, numRecommend):
     pass
 
 
-#@udf(ArrayType(IntegerType()))
+@udf(IntegerType())
 def find_max_in_column_vectors(x):
-    print(x)
-    return x.topicDistribution.argmax()
+    return int(x.argmax())
 
 
 def main(spark):
@@ -68,8 +67,8 @@ def main(spark):
     jokesDistribution.write.mode("overwrite").parquet(
         "s3://aws-emr-resources-257018485161-us-east-1/jokestransformed.parquet"
     )
-    foo = jokesDistribution.rdd.map(lambda x: find_max_in_column_vectors(x))
-    foo.toDF().show()
+    #foo = jokesDistribution.rdd.map(lambda x: find_max_in_column_vectors(x))
+    #foo.toDF().show()
 
-    #ldaModel.transform(jokesDF).select(find_max_in_column_vectors("topicDistribution").alias("dominantTopic")).show()
+    ldaModel.transform(jokesDF).select("jokeID", find_max_in_column_vectors("topicDistribution").alias("dominantTopic")).show()
     #ldaModel.transform(jokesDF).rdd.map(lambda x: x.topicDistribution).show()
