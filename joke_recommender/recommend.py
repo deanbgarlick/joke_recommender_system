@@ -65,6 +65,9 @@ def main(spark):
     jokesTransformed = ldaModel.transform(jokesDF)
     jokesDistribution = jokesTransformed.select("jokeID", "topicDistribution")
     jokesDistribution.show()
+    jokesDistribution.write.mode("overwrite").parquet(
+        "s3://aws-emr-resources-257018485161-us-east-1/jokestransformed.parquet"
+    )
     foo = jokesDistribution.rdd.map(lambda x: find_max_in_column_vectors(x))
     foo.toDF().show()
 
