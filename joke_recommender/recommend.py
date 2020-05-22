@@ -22,17 +22,21 @@ def print_topics(ldaPipelineModel):
     list(map(lambda x: print_topic(x[0], x[1]), topicsWithIndex.collect()))
 
 
-def process_joke_input(userID, ldaModel, alsModel, sqlContext):
+def process_joke_input(userID, ldaModel, alsModel):
+    pass
+
+
+def get_user_predicted_ratings(userID, alsModel, sqlContext):
     userRatings = sqlContext.sql("SELECT * FROM ratings WHERE userID = {userID}".format(userID=userID))
     predictedRatingsForUser = alsModel.transform(userRatings)
     return predictedRatingsForUser
 
-def recommend_based_on_rating(alsModel, numRecommend):
-    pass
 
-
-def recommend_based_on_category(ldaModel, alsModel, ldaCategory, numRecommend):
-    pass
+def joke_similarity(jokeOneID, jokeTwoID, sqlContext):
+    jokeOneTopics = sqlContext.sql("SELECT topicDistribution FROM jokes WHERE jokeID IN ({jokeOneID})".format(jokeOneID=jokeOneID))
+    jokeTwoTopics = sqlContext.sql("SELECT topicDistribution FROM jokes WHERE jokeID IN ({jokeTwoID})".format(jokeTwoID=jokeTwoID))
+    foo = jokeOneTopics - jokeTwoTopics
+    foo.show()
 
 
 @udf(IntegerType())
@@ -74,5 +78,7 @@ def main(spark, sqlContext):
 
     ldaModel.transform(jokesDF).select("jokeID", find_max_in_column_vectors("topicDistribution").alias("dominantTopic")).show()
     #ldaModel.transform(jokesDF).rdd.map(lambda x: x.topicDistribution).show()
-    userRatingsPredictions = process_joke_input(32, ldaModel, alsModel, sqlContext)
+    userRatingsPredictions = get_user_predicted_ratings(32, alsModel, sqlContext)
     userRatingsPredictions.show()
+
+    joke_similarity(101, 102, sqlContext)

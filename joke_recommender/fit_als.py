@@ -18,7 +18,7 @@ def main():
 
     training = training.na.drop()
     test = test.na.drop()
-    
+
     als = ALS(
         maxIter=5,
         regParam=0.01,
@@ -29,11 +29,7 @@ def main():
     )
 
     alsModel = als.fit(training)
-
-    test.show()
-
     predictions = alsModel.transform(test)
-    predictions.show()
     evaluator = RegressionEvaluator(
         metricName="rmse", labelCol="rating", predictionCol="prediction"
     )
