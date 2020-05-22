@@ -33,8 +33,8 @@ def get_user_predicted_ratings(userID, alsModel, sqlContext):
 
 
 def joke_similarity(jokeOneID, jokeTwoID, sqlContext):
-    jokeOneTopics = sqlContext.sql("SELECT topicDistribution FROM jokes WHERE jokeID = {jokeOneID}".format(jokeOneID=jokeOneID))
-    jokeTwoTopics = sqlContext.sql("SELECT topicDistribution FROM jokes WHERE jokeID = {jokeTwoID}".format(jokeTwoID=jokeTwoID))
+    jokeOneTopics = sqlContext.sql("SELECT topicDistribution FROM jokesWithTopics WHERE jokeID = {jokeOneID}".format(jokeOneID=jokeOneID))
+    jokeTwoTopics = sqlContext.sql("SELECT topicDistribution FROM jokesWithTopics WHERE jokeID = {jokeTwoID}".format(jokeTwoID=jokeTwoID))
     foo = jokeOneTopics - jokeTwoTopics
     foo.show()
 
@@ -64,6 +64,7 @@ def main(spark, sqlContext):
             ]
         )
     ).csv("s3://aws-emr-resources-257018485161-us-east-1/jokes_3.csv", header="true")
+    jokesDF.createOrReplaceTempView("jokes")
 
     ldaModel.transform(jokesDF).show()
     jokesTransformed = ldaModel.transform(jokesDF)
@@ -75,8 +76,12 @@ def main(spark, sqlContext):
     #foo = jokesDistribution.rdd.map(lambda x: find_max_in_column_vectors(x))
     #foo.toDF().show()
 
-    jokeTopics = ldaModel.transform(jokesDF).select("jokeID", "raw_text", "topicDistribution")
-    jokeTopics.createOrReplaceTempView("jokes")
+    jokeTopics = ldaModel.transform(jokesDF).select("jokeID", "topicDistribution")
+    jokeTopics.createOrReplaceTempView("jokeTopics")
+
+    sqlContext.sql("CREATE TABLE jokesWithTopics AS SELECT jokes.jokeID, jokes.raw_text, jokeTopics.topicDistribution FROM jokes INNER JOIN jokeTopics ON jokes.jokeID=jokeTopics.jokeID")
+    sqlDF = spark.sql("SELECT * FROM jokesWithTopics")
+    sqlDF.show()
 
     jokeTopics.select("jokeID", find_max_in_column_vectors("topicDistribution").alias("dominantTopic"))
     #ldaModel.transform(jokesDF).rdd.map(lambda x: x.topicDistribution).show()
