@@ -4,7 +4,7 @@ from modelling import recommend
 
 
 def main():
-    spark = SparkSession.builder.appName("Recommendation").getOrCreate().withRasterFrames()
+    spark = SparkSession.builder.appName("Recommendation").getOrCreate()
     recommend.main(spark)
 
 
