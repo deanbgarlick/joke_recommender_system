@@ -33,7 +33,7 @@ def recommend_based_on_category(ldaModel, alsModel, ldaCategory, numRecommend):
     pass
 
 
-@udf(IntegerType())
+@udf(ArrayType(IntegerType()))
 def find_max_in_column_vectors(x):
     return x.argmax()
 
