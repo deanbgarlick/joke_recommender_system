@@ -15,9 +15,10 @@ def remove_punctuation(text):
 
 
 def register_remove_punctuation_udf(spark):
+    import joke_recommender
     spark.udf.register(
         "remove_punctuation_udf",
-        lambda row: remove_punctuation(row),
+        lambda row: joke_recommender.fit_lda.remove_punctuation(row),
         StringType()
     )
 

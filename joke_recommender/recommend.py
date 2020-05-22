@@ -4,8 +4,6 @@ from pyspark.sql.functions import udf
 from .fit_als import load_als_model
 from .fit_lda import load_lda_model
 
-import joke_recommender
-
 
 def print_topic(topic, i):
     print("\n\n")
