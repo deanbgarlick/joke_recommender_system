@@ -1,4 +1,5 @@
-from pyspark.sql import SparkSession
+from pyspark.sql import SparkSession, SQLContext
+
 
 from joke_recommender import recommend
 
