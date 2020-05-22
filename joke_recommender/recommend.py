@@ -64,7 +64,6 @@ def main(spark, sqlContext):
             ]
         )
     ).csv("s3://aws-emr-resources-257018485161-us-east-1/jokes_3.csv", header="true")
-    jokesDF.createOrReplaceTempView("jokes")
 
     ldaModel.transform(jokesDF).show()
     jokesTransformed = ldaModel.transform(jokesDF)
@@ -76,8 +75,12 @@ def main(spark, sqlContext):
     #foo = jokesDistribution.rdd.map(lambda x: find_max_in_column_vectors(x))
     #foo.toDF().show()
 
-    ldaModel.transform(jokesDF).select("jokeID", find_max_in_column_vectors("topicDistribution").alias("dominantTopic")).show()
+    jokeTopics = ldaModel.transform(jokesDF).select("jokeID", "raw_text", "topicDistribution")
+    jokeTopics.createOrReplaceTempView("jokes")
+
+    jokeTopics.select("jokeID", find_max_in_column_vectors("topicDistribution").alias("dominantTopic"))
     #ldaModel.transform(jokesDF).rdd.map(lambda x: x.topicDistribution).show()
+
     userRatingsPredictions = get_user_predicted_ratings(32, alsModel, sqlContext)
     userRatingsPredictions.show()
 
