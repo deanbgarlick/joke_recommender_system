@@ -33,8 +33,8 @@ def get_user_predicted_ratings(userID, alsModel, sqlContext):
 
 
 def joke_similarity(jokeOneID, jokeTwoID, sqlContext):
-    jokeOneTopics = sqlContext.sql("SELECT topicDistribution FROM jokes WHERE jokeID IN ({jokeOneID})".format(jokeOneID=jokeOneID))
-    jokeTwoTopics = sqlContext.sql("SELECT topicDistribution FROM jokes WHERE jokeID IN ({jokeTwoID})".format(jokeTwoID=jokeTwoID))
+    jokeOneTopics = sqlContext.sql("SELECT topicDistribution FROM jokes WHERE jokeID = {jokeOneID}".format(jokeOneID=jokeOneID))
+    jokeTwoTopics = sqlContext.sql("SELECT topicDistribution FROM jokes WHERE jokeID = {jokeTwoID}".format(jokeTwoID=jokeTwoID))
     foo = jokeOneTopics - jokeTwoTopics
     foo.show()
 
