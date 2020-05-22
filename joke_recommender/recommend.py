@@ -22,8 +22,10 @@ def print_topics(ldaPipelineModel):
     list(map(lambda x: print_topic(x[0], x[1]), topicsWithIndex.collect()))
 
 
-def process_joke_input(userId, ldaModel, alsModel):
-    pass
+def process_joke_input(userID, ldaModel, alsModel, sqlContext):
+    userRatings = sqlContext.sql("SELECT * FROM ratings WHERE userID = {userID}".format(userID=userID))
+    predictedRatingsForUser = alsModel.transform(userRatings)
+    return predictedRatingsForUser
 
 def recommend_based_on_rating(alsModel, numRecommend):
     pass
@@ -38,7 +40,7 @@ def find_max_in_column_vectors(x):
     return int(x.argmax())
 
 
-def main(spark):
+def main(spark, sqlContext):
 
     ldaModel = load_lda_model(spark)
     register_remove_punctuation_udf(spark)
@@ -72,3 +74,5 @@ def main(spark):
 
     ldaModel.transform(jokesDF).select("jokeID", find_max_in_column_vectors("topicDistribution").alias("dominantTopic")).show()
     #ldaModel.transform(jokesDF).rdd.map(lambda x: x.topicDistribution).show()
+    userRatingsPredictions = process_joke_input(32, ldaModel, alsModel, sqlContext)
+    userRatingsPredictions.show()
