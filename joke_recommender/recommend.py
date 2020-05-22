@@ -61,7 +61,7 @@ def main(spark):
     jokesDF.createOrReplaceTempView("jokes")
 
     ldaModel.transform(jokesDF).show()
-    jokesTransformed = ldaModel.transform(jokesDF).select("topicDistribution").rdd
+    jokesTransformed = ldaModel.transform(jokesDF).select("topicDistribution")
     jokesTransformed.select("jokesDF", find_max_in_column_vectors("topicDistribution").alias("dominantTopic")).show()
     #ldaModel.transform(jokesDF).select(find_max_in_column_vectors("topicDistribution").alias("dominantTopic")).show()
     #ldaModel.transform(jokesDF).rdd.map(lambda x: x.topicDistribution).show()
