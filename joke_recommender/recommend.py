@@ -78,7 +78,7 @@ def main(spark, sqlContext):
     jokeTopics = ldaModel.transform(jokesDF).select("jokeID", "topicDistribution")
     jokeTopics.createOrReplaceTempView("jokeTopics")
 
-    jokesDF = jokesDF.join(jokeTopics, jokesDF.jokeID == jokeTopics.jokeID).selectExpr("jokeID", "raw_text", "topicDistribution")
+    jokesDF = jokesDF.join(jokeTopics, jokesDF.jokeID == jokeTopics.jokeID).select(jokesDF["jokeID"], "raw_text", "topicDistribution")
     jokesDF.show()
     jokesDF.createOrReplaceTempView("jokes")
 
