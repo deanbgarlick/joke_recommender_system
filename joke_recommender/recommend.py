@@ -41,7 +41,7 @@ def joke_distance(jokeOneID, jokeTwoID, sqlContext, p=2):
 
 def get_map_topic_of_joke(spark, sqlContext, jokeID):
     spark.udf.register("find_max_in_column_vectors", find_max_in_column_vectors, IntegerType())
-    jokeMAPTopic = sqlContext.sql("SELECT find_max_in_column_vectors(topicDistribution) FROM jokes WHERE jokeID={jokeID}".format(jokeID=jokeID)).toDF()
+    jokeMAPTopic = sqlContext.sql("SELECT find_max_in_column_vectors(topicDistribution) AS MAPTopic FROM jokes WHERE jokeID={jokeID}".format(jokeID=jokeID)).toDF()
     jokeMAPTopic.show()
     #jokeTopics.select("jokeID", find_max_in_column_vectors("topicDistribution").alias("dominantTopic"))
 
