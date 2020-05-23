@@ -39,8 +39,14 @@ def joke_distance(jokeOneID, jokeTwoID, sqlContext, p=2):
     return Vectors.norm(joke_disparity.rdd.first().topicDistribution, p)**(1/p)
 
 
+def get_map_topic_of_joke(spark, sqlContext, jokeID):
+    spark.udf.register("find_max_in_column_vectors", find_max_in_column_vectors, IntegerType())
+    jokeMAPTopic = sqlContext.sql("SELECT find_max_in_column_vectors(topicDistribution) FROM jokes WHERE jokeID={jokeID}".format(jokeID=jokeID)).toDF()
+    jokeMAPTopic = jokeMAPTopic.show()
+    #jokeTopics.select("jokeID", find_max_in_column_vectors("topicDistribution").alias("dominantTopic"))
 
-@udf(IntegerType())
+
+#@udf(IntegerType())
 def find_max_in_column_vectors(x):
     return int(x.argmax())
 
@@ -81,10 +87,10 @@ def main(spark, sqlContext):
 
     jokesDF.createOrReplaceTempView("jokes")
 
-    jokeTopics.select("jokeID", find_max_in_column_vectors("topicDistribution").alias("dominantTopic"))
-
     userRatingsPredictions = get_user_predicted_ratings(32, alsModel, sqlContext)
     userRatingsPredictions.show()
 
     foo = joke_distance(101, 102, sqlContext, p)
     print(foo)
+
+    get_map_topic_of_joke(spark, sqlContext, 101)
