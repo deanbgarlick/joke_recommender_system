@@ -78,7 +78,8 @@ def main(spark, sqlContext):
     jokeTopics = ldaModel.transform(jokesDF).select("jokeID", "topicDistribution")
     jokeTopics.createOrReplaceTempView("jokeTopics")
 
-    jokesDF = jokesDF.join(jokeTopics, jokesDF.jokeID == jokeTopics.jokeID)
+    jokesDF = jokesDF.join(jokeTopics, jokesDF.jokeID == jokeTopics.jokeID).selectExpr("jokes.jokeID as jokeID", "jokes.raw_text as raw_text", "jokeTopics.topicDistribution as topicDistribution")
+    jokesDF.show()
     jokesDF.createOrReplaceTempView("jokes")
 
     jokeTopics.select("jokeID", find_max_in_column_vectors("topicDistribution").alias("dominantTopic"))
