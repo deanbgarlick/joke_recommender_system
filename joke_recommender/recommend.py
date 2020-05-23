@@ -32,11 +32,12 @@ def get_user_predicted_ratings(userID, alsModel, sqlContext):
     return predictedRatingsForUser
 
 
-def joke_similarity(jokeOneID, jokeTwoID, sqlContext):
+def joke_distance(jokeOneID, jokeTwoID, sqlContext):
     jokeOneTopics = sqlContext.sql("SELECT topicDistribution FROM jokes WHERE jokeID = {jokeOneID}".format(jokeOneID=jokeOneID))
     jokeTwoTopics = sqlContext.sql("SELECT topicDistribution FROM jokes WHERE jokeID = {jokeTwoID}".format(jokeTwoID=jokeTwoID))
-    foo = jokeOneTopics.subtract(jokeTwoTopics)
-    foo.show()
+    joke_disparity = jokeOneTopics.subtract(jokeTwoTopics)
+    return Vectors.norm(joke_disparity.rdd.first().topicDistribution, 2)**.5
+
 
 
 @udf(IntegerType())
@@ -85,4 +86,5 @@ def main(spark, sqlContext):
     userRatingsPredictions = get_user_predicted_ratings(32, alsModel, sqlContext)
     userRatingsPredictions.show()
 
-    joke_similarity(101, 102, sqlContext)
+    foo = joke_distance(101, 102, sqlContext)
+    print(foo)
